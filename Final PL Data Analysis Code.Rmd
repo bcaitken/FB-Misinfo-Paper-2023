@@ -1,0 +1,877 @@
+---
+title: "Untitled"
+output: pdf_document
+date: "2022-11-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+pldata <- read.csv("/Users/brianaitken/Desktop/Final PL Dataset (edited).csv")
+
+###Recoding Gender as 1 = Male and 2 = Female 
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+library(knitr)
+pldata <- pldata %>% mutate(gender= case_when( 
+  gender == "mƒô≈ºczyzna" ~ 1, 
+  gender == "kobieta" ~ 2
+))
+
+###Recoding Age Variable
+pldata<- pldata %>% mutate(age= case_when( 
+  age == "18 to 24" ~ 1, 
+  age == "25 to 34" ~ 2, 
+  age == "35 to 44" ~ 3, 
+  age == "45 to 54" ~ 4,
+  age == "55 to 64" ~ 5, 
+  age == "65+" ~ 6
+))
+
+
+##Recoding municipal_size Variable 
+
+pldata<- pldata %>% mutate(municipal_size = case_when( 
+  municipal_size == "wie≈õ" ~ 1, 
+  municipal_size == "miasto (do 20 tys. mieszka≈Ñc√≥w r.)" ~ 2, 
+  municipal_size == "miasto (od 20 do 99 tys. mieszka≈Ñc√≥w r.)" ~ 3, 
+  municipal_size == "miasto (od 100 do 500 tys. mieszka≈Ñc√≥w r.)" ~ 4,
+  municipal_size == "miasto (powy≈ºej 500 tys. mieszka≈Ñc√≥w r.)" ~ 5
+))
+
+###Recoding Education Variable 
+pldata<- pldata %>% mutate(education = case_when( 
+  education == "podstawowe/ gimnazjum" ~ 1, 
+  education == "zasadnicze" ~ 2, 
+  education == "≈õrednie" ~ 3, 
+  education == "pomaturalne/ policealne" ~ 4,
+  education == "licencjat" ~ 5, 
+  education == "uko≈Ñczone studia wy≈ºsze" ~ 6
+))
+
+###Recoding Political Interest Variable 
+
+pldata <- pldata %>% mutate(political_interest = case_when( 
+  political_interest  == "Wcale siƒô nie interesuje¬†" ~ 1, 
+  political_interest  == "Niezbyt¬†siƒô interesujƒô ¬†" ~ 2, 
+  political_interest  == "Trochƒô¬†siƒô interesujƒô ¬†" ~ 3, 
+  political_interest  == "Bardzo¬†siƒô interesujƒô ¬†" ~ 4,
+  political_interest  == "Jestem szczeg√≥lnie zainteresowany/a politykƒÖ¬†" ~ 5
+))
+
+###Recoding Click Variables 
+pldata<- pldata %>% mutate(MAGNAPOLONIA.ORG = case_when( 
+  MAGNAPOLONIA.ORG  == "No" ~ 0, 
+  MAGNAPOLONIA.ORG  == "Yes" ~ 1
+))
+
+pldata<- pldata %>% mutate(WMERITUM.PL = case_when( 
+  WMERITUM.PL  == "No" ~ 0, 
+  WMERITUM.PL  == "Yes" ~ 1
+))
+
+pldata<- pldata %>% mutate(POLSATNEWS.PL = case_when( 
+  POLSATNEWS.PL  == "No" ~ 0, 
+  POLSATNEWS.PL  == "Yes" ~ 1
+))
+
+pldata<- pldata %>% mutate(PAP.PL = case_when( 
+  PAP.PL  == "No" ~ 0, 
+  PAP.PL  == "Yes" ~ 1
+))
+
+pldata<- pldata %>% mutate(KONKRET24.TVN24.PL = case_when( 
+  KONKRET24.TVN24.PL  == "No" ~ 0, 
+  KONKRET24.TVN24.PL  == "Yes" ~ 1
+))
+
+pldata<- pldata %>% mutate(TRUDAT.PL = case_when( 
+  TRUDAT.PL  == "No" ~ 0, 
+  TRUDAT.PL  == "Yes" ~ 1
+))
+
+
+pldata<- pldata %>% mutate(FAKEHUNTER.PAP.PL = case_when( 
+  FAKEHUNTER.PAP.PL  == "No" ~ 0, 
+  FAKEHUNTER.PAP.PL  == "Yes" ~ 1
+))
+
+
+pldata<- pldata %>% mutate(FAKENEWS.PL = case_when( 
+  FAKENEWS.PL  == "No" ~ 0, 
+  FAKENEWS.PL  == "Yes" ~ 1
+))
+
+pldata$Aby.sprawdziƒá..czy.uwa.ºnie.czytasz.pytania..kliknij.w.drugƒÖ.odpowied...od.g..ry.<- pldata$attnchk
+
+###Creating US misperceptionn variable 
+pldata$misp <- (rowSums(pldata[,c("false1_acc", "false2_acc")], na.rm=TRUE))/2
+
+###Creating US Skeptism variable
+pldata$skept <- (rowSums(pldata[,c("true1_acc", "true2_acc", "true3_acc")], na.rm=TRUE))/3
+
+###Recoding US Skeptism variable 
+pldata$skept <- 5 - pldata$skept
+
+###Creating Trust Variable 
+pldata$trust <- (rowSums(pldata[,c("Journalists", "Scientists", "Fact.checkers", "University.Professors", 
+                                   "Social.media", "Traditional.media", "P.L.Government")], na.rm=TRUE))/7
+
+
+library(dplyr)
+
+###Medialit treatment 
+pldata<- pldata %>% mutate(tr_medialit = case_when( 
+  condition == "10" ~ 0, 
+  condition == "8" ~ 1, 
+  condition == "9" ~ 2
+))
+
+
+###Factchecking Treatment
+pldata<- pldata %>% mutate(tr_factcheck = case_when( 
+  condition == "10" ~ 0, 
+  condition == "3" ~ 1, 
+  condition == "4" ~ 1,
+  condition == "5" ~ 1,
+  condition == "6" ~ 1,
+  condition == "7" ~ 2
+))
+
+###Misinfo Coverage 
+pldata<- pldata %>% mutate(tr_coverage = case_when( 
+  condition == "10" ~ 0, 
+  condition == "1" ~ 1, 
+  condition == "2" ~ 2
+))
+
+###Treatment All 
+pldata <- pldata %>% mutate(tr_all = case_when( 
+  condition == "10" ~ 0, 
+  condition == "1" ~ 1, 
+  condition == "2" ~ 2,
+  condition == "3" ~ 3, 
+  condition == "4" ~ 3,
+  condition == "5" ~ 3,
+  condition == "6" ~ 3,
+  condition == "7" ~ 4,
+  condition == "8" ~ 5, 
+  condition == "9" ~ 6
+))
+
+###Creating Site Visit Counts by condition
+pldata$visit_fact <- pldata$TRUDAT.PL + pldata$KONKRET24.TVN24.PL
+pldata$visit_fake <- pldata$MAGNAPOLONIA.ORG + pldata$WMERITUM.PL
+pldata$visit_news <- pldata$POLSATNEWS.PL + pldata$PAP.PL
+pldata$visit_medialit <- pldata$FAKEHUNTER.PAP.PL + pldata$FAKENEWS.PL
+
+
+pldata$hyperpartisan <- ((rowSums(pldata[,c("HL1_partisan_left_bias", "HL1_partisan_left_favor", "HL2_partisan_left_bias", "HL2_partisan_left_favor", 
+                                   "HL3_partisan_left_bias", "HL3_partisan_left_favor", "HL4_partisan_left_bias", "HL4_partisan_left_favor", "HL5_partisan_left_bias", "HL5_partisan_left_favor", "HL6_partisan_left_bias", "HL6_partisan_left_favor", "HL1_partisan_right_bias", "HL1_partisan_right_favor", "HL2_partisan_right_bias", "HL2_partisan_right_favor", "HL3_partisan_right_bias", "HL3_partisan_right_favor", "HL4_partisan_right_bias", "HL4_partisan_right_favor", "HL5_partisan_right_bias", "HL5_partisan_right_favor", "HL6_partisan_right_bias", "HL6_partisan_right_favor")], na.rm=TRUE))/2)
+
+
+pldata$mainstream <- ((rowSums(pldata[,c("HL1_mainstr_left_bias", "HL1_mainstr_left_favor", "HL2_mainstr_left_bias", "HL2_mainstr_left_favor", 
+                                   "HL3_mainstr_left_bias", "HL3_mainstr_left_favor", "HL4_mainstr_left_bias", "HL4_mainstr_left_favor", "HL5_mainstr_left_bias", "HL5_mainstr_left_favor", "HL6_mainstr_left_bias", "HL6_mainstr_left_favor", "HL7_mainstr_left_bias", "HL7_mainstr_left_favor", "HL8_mainstr_left_bias", "HL8_mainstr_left_favor", 
+                          "HL1_mainstr_right_bias", "HL1_mainstr_right_favor", "HL2_mainstr_right_bias", "HL2_mainstr_right_favor", "HL3_mainstr_right_bias", "HL3_mainstr_right_favor", "HL4_mainstr_right_bias", "HL4_mainstr_right_favor", "HL5_mainstr_right_bias", "HL5_mainstr_right_favor", "HL6_mainstr_right_bias", "HL6_mainstr_right_favor")], na.rm=TRUE))/2)
+
+pldata$mainstream <- 5 - pldata$mainstream
+
+##Creating false score 
+
+pldata$false <- ((rowSums(pldata[,c("HL1_fake_acc", "HL1_fake_trust", "HL2_fake_acc", "HL2_fake_trust", 
+                                   "HL3_fake_acc", "HL3_fake_trust", "HL4_fake_acc", "HL4_fake_trust", "HL5_fake_acc",
+                                   "HL5_fake_trust")], na.rm=TRUE))/2)
+
+pldata$false <- 5 - pldata$false
+
+###Manipulation Check Variable Create
+
+pldata <- pldata %>% mutate(treatment.exposure.question = case_when( 
+  condition == "10" ~ 0, 
+  treatment.exposure.question == "1" ~ 1, 
+  treatment.exposure.question == "2" ~ 2, 
+))
+
+pldata<- pldata %>% mutate(mani_check_pass = case_when( 
+  condition == "10" & treatment.exposure.question == "0" ~ "Pass",
+  condition == "1" & treatment.exposure.question == "1" ~ "Pass",
+  condition == "1" & treatment.exposure.question == "2" ~ "Fail", 
+  condition == "2" & treatment.exposure.question == "1" ~ "Fail",
+  condition == "2" & treatment.exposure.question == "2" ~ "Pass", 
+  condition == "3" & treatment.exposure.question == "1" ~ "Pass", 
+  condition == "4" & treatment.exposure.question == "1" ~ "Pass",
+  condition == "5" & treatment.exposure.question == "1" ~ "Pass",
+  condition == "6" & treatment.exposure.question == "1" ~ "Pass",
+  condition == "3" & treatment.exposure.question == "2" ~ "Fail", 
+  condition == "4" & treatment.exposure.question == "2" ~ "Fail",
+  condition == "5" & treatment.exposure.question == "2" ~ "Fail",
+  condition == "6" & treatment.exposure.question == "2" ~ "Fail",
+  condition == "7" & treatment.exposure.question == "1" ~ "Fail",
+  condition == "7" & treatment.exposure.question == "2" ~ "Pass",
+  condition == "8" & treatment.exposure.question == "1" ~ "Pass",
+  condition == "8" & treatment.exposure.question == "2" ~ "Fail",
+  condition == "9" & treatment.exposure.question == "1" ~ "Fail",
+  condition == "9" & treatment.exposure.question == "2" ~ "Pass"
+
+))
+
+###Recoding to make Pass = 1 and fail = 0 
+pldata<- pldata %>% mutate(mani_check_pass = case_when(
+  mani_check_pass == "Pass" ~ 1,
+  mani_check_pass == "Fail" ~ 0
+))
+
+write.csv(pldata, "/Users/brianaitken/Desktop/11.11 Updated PL Final dataset.csv")
+
+
+
+```
+
+```{r Hypo Testing}
+
+###Hypothesis Testing 
+
+###Hypothesis 1
+
+pldata$tr_factcheck <- as.factor(pldata$tr_factcheck)
+
+###Hypothesis 1 A:  Misperception 2 Treatment compared to controls 
+h1a1 <- lm(misp ~ age + gender + municipal_size + education +support_oppose +   tr_factcheck + political_interest, data = pldata )
+summary(h1a1)
+
+###Hypothesis 1 B: Skpetism 2 Treatments compared to Control
+
+h1b1<- lm(skept ~ age + gender + municipal_size + education +support_oppose +   tr_factcheck + political_interest, data = pldata )
+summary(h1b1)
+
+###Hypothesis 1C: Trust 2 Treatments Compared to Control 
+
+h1c1 <-lm(trust ~ age + gender + municipal_size + education +support_oppose +   tr_factcheck + political_interest, data = pldata)
+summary(h1c1)
+
+
+###Hypothesis 2 
+
+
+###Hypothesis 2A: False 2 Treatment compared to Control
+pldata$tr_medialit <- as.factor(pldata$tr_medialit)
+h2a <-lm(false ~ age +gender + municipal_size + education +support_oppose +   tr_medialit + political_interest, data = pldata)
+summary(h2a)
+
+
+###Hypothesis 2B: Mainstream 2 treatment compared to Control 
+
+h2b <-lm(mainstream ~ age + gender + municipal_size + education +support_oppose +   tr_medialit + political_interest, data = pldata)
+summary(h2b)
+
+###Hypothesis 2C: Biased News 2 Treatment compared to Control 
+h2c <-lm(hyperpartisan ~ age + gender + municipal_size + education +support_oppose +   tr_medialit + political_interest, data = pldata)
+summary(h2c)
+
+###Hypothesis 2D:Trust 2 Treatment compared to Control 
+h2d <-lm(trust ~ age + gender + municipal_size + education +support_oppose +   tr_medialit + political_interest, data = pldata)
+summary(h2d)
+
+###Hypothesis 2E: Skeptism 2 Treatments compared to Control 
+h2e <-lm(skept ~ age + gender + municipal_size + education +support_oppose +   tr_medialit + political_interest, data = pldata)
+summary(h2e)
+
+###Hypothesis 3
+
+###Hypothesis 3A: trust 2 Treatments to controls 
+pldata$tr_coverage <- as.factor(pldata$tr_coverage)
+
+H3a <- lm(trust ~ age + gender + municipal_size + education +    support_oppose + tr_coverage  + political_interest, data = pldata)
+summary(H3a)
+
+###Hypothesis 3B: Misperception 2 Treatment to control
+H3b<- lm(misp ~ age + gender + municipal_size + education +    support_oppose + tr_coverage  + political_interest, data = pldata)
+summary(H3b)
+
+
+###Hypothesis 3C: Skeptism 2 Treatment to Controls 
+H3c<- lm(skept ~ age + gender + municipal_size + education +    support_oppose + tr_coverage  + political_interest, data = pldata)
+summary(H3c)
+
+
+###All Reference Groups for treatment 
+
+###Hypothesis 1A: Misperception - Treatment 2 and control compared to treatment 1 
+tr_factcheck.coded <- relevel(as.factor(pldata$tr_factcheck),
+                        ref = "1")
+h1a.ref1<-lm(misp ~age + gender + municipal_size + education +   support_oppose + tr_factcheck.coded + political_interest, data = pldata )
+summary(h1a.ref1)
+
+
+####Hypothesis 1B: Skeptism - Treatment 2 and control compared to treatment 1 
+h1b.ref1<- lm(skept ~age + gender + municipal_size + education +support_oppose +   tr_factcheck.coded + political_interest, data = pldata )
+summary(h1b.ref1)
+
+
+###Hypothesis 1c: Trust - Treatment 2 and control compared to treatment 1 
+h1c.ref1<- lm(trust ~ age + gender + municipal_size + education +support_oppose +   tr_factcheck.coded + political_interest, data = pldata )
+summary(h1c.ref1)
+
+###Hypothesis 2: Media Lit
+
+###Hypothesis 2a: False - Treatment 2 and control compared to treatment 1 
+
+tr_medialit.recoded  <- relevel(as.factor(pldata$tr_medialit),
+                        ref = "1")
+
+h2a.ref1 <-lm(false ~ age +gender + municipal_size + education +support_oppose +   tr_medialit.recoded + political_interest, data = pldata )
+summary(h2a.ref1)
+
+
+###Hypothesis 2b: Accurate News - Treatmen 2 and control compared to treatment 1 
+h2b.ref1 <-lm(mainstream ~ gender + municipal_size + education +support_oppose +   tr_medialit.recoded + political_interest, data = pldata )
+summary(h2b.ref1)
+
+###Hypothesis 2c: Bias News - Treatment 2and control compared to treatment 1 
+
+h2c.ref1 <-lm(hyperpartisan ~ age + gender + municipal_size + education +support_oppose +   tr_medialit.recoded + political_interest, data = pldata )
+summary(h2c.ref1)
+
+###Hypothesis 2d: Trust - Treatment 2 and control compared to treatment 1
+h2d.ref1 <-lm(trust ~ age +gender + municipal_size + education +support_oppose +   tr_medialit.recoded + political_interest, data = pldata )
+summary(h2d.ref1)
+
+
+###Hypothesis 2e: Skeptism - Treatment 2 and control compared to treatment 1 
+h2e.ref1 <-lm(skept ~ age +gender + municipal_size + education +support_oppose +   tr_medialit.recoded + political_interest, data = pldata )
+summary(h2e.ref1)
+
+
+###Hypothesis 3: News Coverage 
+
+
+###Hypothesis 3A: Trust - Treatment 2 and control compared to treatment 1 
+tr_coverage.recoded <- relevel(as.factor(pldata$tr_coverage),
+                        ref = "1")
+
+h3a.ref1 <-lm(trust ~age + gender + municipal_size + education +support_oppose +   tr_coverage.recoded + political_interest, data = pldata )
+summary(h3a.ref1)
+
+
+###Hypothesis 3B: Misperceptions - Treatment 2 and control compared to treatment 1 
+
+h3b.ref1 <-lm(misp ~age + gender + municipal_size + education +support_oppose +   tr_coverage.recoded + political_interest, data = pldata )
+summary(h3b.ref1)
+
+
+###Hypothesis 3C: Skeptism - Treatment 2 and control compared to treatment 1 
+h3c.ref1 <-lm(skept ~ age + gender + municipal_size + education +support_oppose +   tr_coverage.recoded + political_interest, data = pldata )
+summary(h3c.ref1)
+
+
+
+###Subsetting Data for only pass MC 
+ manipulation.checked.pl <- subset(pldata, pldata$mani_check_pass == "1")
+
+
+###Hypo1 Misp
+ 
+manipulation.checked.pl$tr_factcheck <- as.factor( manipulation.checked.pl$tr_factcheck)
+
+rerun.h1a1 <- lm(misp ~ age +gender + municipal_size + education + support_oppose + tr_factcheck + political_interest, data = manipulation.checked.pl)
+summary(rerun.h1a1)
+
+###Hypo1 Skept
+rerun.h1b1 <- lm(skept ~ age + gender + municipal_size + education +  support_oppose + tr_factcheck + political_interest, data =  manipulation.checked.pl )
+summary(rerun.h1b1)
+
+###Hypo1 Trust
+
+rerun.h1c1 <-lm(trust ~  age +gender + municipal_size + education +  support_oppose + tr_factcheck + political_interest, data =  manipulation.checked.pl)
+summary(rerun.h1c1)
+
+
+###Hypo 2a False  
+ manipulation.checked.pl$tr_medialit <- as.factor( manipulation.checked.pl$tr_medialit)
+
+
+rerun.H2a1 <-lm(false ~  age +gender + municipal_size + education +     support_oppose + tr_medialit  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2a1)
+
+
+###Hypo 2b Accurate News 
+
+rerun.H2b1 <-lm(mainstream ~  age +gender + municipal_size + education +     support_oppose + tr_medialit  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2b1)
+
+##Hypo 2c Biased News 
+
+rerun.H2c1 <-lm(hyperpartisan ~ age + gender + municipal_size + education +     support_oppose + tr_medialit  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2c1)
+
+
+
+###Hypo 2d Trust
+
+rerun.H2d1 <- lm(trust ~ age + gender + municipal_size + education +     support_oppose + tr_medialit  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2d1)
+
+
+
+###Hypo 2e Skept 
+
+rerun.H2e1 <-lm(skept ~  age + gender + municipal_size + education +     support_oppose + tr_medialit  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2e1)
+
+
+###Hypo 3a Trust 
+ manipulation.checked.pl$tr_coverage <- as.factor( manipulation.checked.pl$tr_coverage)
+rerun.H3a1 <- lm(trust ~  age +gender + municipal_size + education +     support_oppose + tr_coverage  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3a1)
+
+###Hypo 3b Misper
+
+rerun.H3b1 <- lm(misp ~  age +gender + municipal_size + education +     support_oppose + tr_coverage  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3b1)
+
+###Hypo 3c Skept 
+
+rerun.H3c1 <- lm(skept ~ age + gender + municipal_size + education +     support_oppose + tr_coverage  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3c1)
+
+
+###Hypo1 Misp
+ 
+manipulation.checked.pl$tr_factcheck <- as.factor( manipulation.checked.pl$tr_factcheck)
+
+tr_factcheck.coded <- relevel(as.factor(manipulation.checked.pl$tr_factcheck),
+                        ref = "1")
+
+rerun.h1a2 <- lm(misp ~ age +gender + municipal_size + education + support_oppose + tr_factcheck.coded + political_interest, data = manipulation.checked.pl)
+summary(rerun.h1a2)
+
+###Hypo1 Skept
+rerun.h1b2 <- lm(skept ~ age + gender + municipal_size + education +  support_oppose + tr_factcheck.coded + political_interest, data =  manipulation.checked.pl )
+summary(rerun.h1b2)
+
+###Hypo1 Trust
+
+rerun.h1c2 <-lm(trust ~  age +gender + municipal_size + education +  support_oppose + tr_factcheck.coded + political_interest, data =  manipulation.checked.pl)
+summary(rerun.h1c2)
+
+
+###Hypo 2a False  
+ manipulation.checked.pl$tr_medialit <- as.factor( manipulation.checked.pl$tr_medialit)
+tr_medialit.recoded  <- relevel(as.factor(manipulation.checked.pl$tr_medialit),
+                        ref = "1")
+ 
+rerun.H2a2 <-lm(false ~  age +gender + municipal_size + education +     support_oppose + tr_medialit.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2a2)
+
+
+###Hypo 2b Accurate News 
+
+
+rerun.H2b2 <-lm(mainstream ~  age +gender + municipal_size + education +     support_oppose + tr_medialit.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2b2)
+
+##Hypo 2c Biased News 
+
+rerun.H2c2 <-lm(hyperpartisan ~ age + gender + municipal_size + education +     support_oppose + tr_medialit.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2c2)
+
+
+
+###Hypo 2d Trust
+
+rerun.H2d2 <- lm(trust ~ age + gender + municipal_size + education +    support_oppose + tr_medialit.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2d2)
+
+
+
+###Hypo 2e Skept 
+
+rerun.H2e2 <-lm(skept ~  age + gender + municipal_size + education +     support_oppose + tr_medialit.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H2e2)
+
+###Hypo 3a Trust
+manipulation.checked.pl$tr_coverage <- as.factor( manipulation.checked.pl$tr_coverage)
+tr_coverage.recoded <- relevel(as.factor(manipulation.checked.pl$tr_coverage),
+                        ref = "1")
+rerun.H3a2 <- lm(trust ~  age +gender + municipal_size + education +     support_oppose + tr_coverage.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3a2)
+
+###Hypo 3b Misper
+
+rerun.H3b2 <- lm(misp ~  age +gender + municipal_size + education +     support_oppose + tr_coverage.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3b2)
+
+###Hypo 3c Skept 
+
+rerun.H3c2 <- lm(skept ~ age + gender + municipal_size + education +     support_oppose + tr_coverage.recoded  + political_interest, data =  manipulation.checked.pl)
+summary(rerun.H3c2)
+
+
+
+###Exploratory Analysis 
+pldata$tr_all <- as.factor(pldata$tr_all)
+
+intent.medialit <- lm(visit_medialit ~ age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= pldata)
+summary(intent.medialit)
+
+intent.news <- lm(visit_news ~  age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= pldata)
+summary(intent.news)
+
+intent.fake <- lm(visit_fake ~ age + gender + municipal_size + education + support_oppose +  tr_all + political_interest, data= pldata)
+summary(intent.fake)
+
+intent.fact <- lm(visit_fact ~ age + gender + municipal_size + education + support_oppose +  tr_all + political_interest, data= pldata)
+summary(intent.fact)
+
+intent.to.read.pl.models  <- list(intent.medialit,intent.news,intent.fake,intent.fact)
+
+stargazer(intent.to.read.pl.models, type = "latex", title = "Intent to Read by Treatment Condition", dep.var.labels= c("Media Literacy", "Legacy News", "Fake News", "Fact Checking" ), covariate.labels = c("age", "gender", "municipal size", "education", "birth place", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+##Trust Cronbach Alpha
+trust.data<- data.frame(pldata$Journalists, pldata$Fact.checkers, pldata$P.L.Government, pldata$University.Professors, pldata$Social.media, pldata$Traditional.media, pldata$Scientists)
+
+cronbach.alpha(trust.data, na.rm = TRUE)
+
+###all treatments, identify effects on the individual trust items 
+trust.journalist <- lm(Journalists ~age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= pldata)
+summary(trust.journalist)
+stargazer(trust.journalist, type = "latex", title = "Trust in Journalists by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+trust.Fact.checkers <- lm(Fact.checkers ~age + gender + municipal_size + education + support_oppose ++ tr_all + political_interest, data= pldata)
+summary(trust.Fact.checkers)
+stargazer(trust.Fact.checkers, type = "latex", title = "Trust in Fact Checkers by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+trust.plgov <-  lm(P.L.Government ~age + gender + municipal_size + education + support_oppose +tr_all + political_interest, data= pldata)
+summary(trust.plgov)
+stargazer(trust.plgov, type = "latex", title = "Trust in Polish Government by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+trust.uni.profs <-  lm(University.Professors ~age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= pldata)
+summary(trust.uni.profs)
+stargazer(trust.uni.profs, type = "latex", title = "Trust in University Professors by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+trust.socialmedia <-  lm(Social.media ~age + gender + municipal_size + education + support_oppose+ tr_all + political_interest, data= pldata)
+summary(trust.socialmedia)
+stargazer(trust.socialmedia, type = "latex", title = "Trust in Social Media by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+trust.traditionalmedia <-lm(Traditional.media ~age + gender + municipal_size + education + support_oppose+   tr_all+ political_interest, data= pldata)
+summary(trust.traditionalmedia)
+stargazer(trust.traditionalmedia, type = "latex", title = "Trust in Traditional Media by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+trust.scientists <- lm(Scientists ~age + gender + municipal_size + education + support_oppose+ tr_all + political_interest, data= pldata)
+summary(trust.scientists)
+stargazer(trust.scientists, type = "latex", title = "Trust in Scientists by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+trust.models.pl <- list(trust.journalist,trust.Fact.checkers,trust.plgov,trust.uni.profs,trust.socialmedia,trust.traditionalmedia,trust.scientists)
+
+stargazer(trust.models.pl, type = "latex", title = "Trust by Treatment Condition", dep.var.labels= c("Journalists", "Fact Checkers","HK Government","University Professors","Socail Media", "Traditional Media", "Scientisits"), covariate.labels = c("age", "gender", "race", "education", "birth place", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+###Fact Checking on  false, mainstream and hyperpartisan news detection compared to CONTROL 
+
+
+fact.check.false <- lm(false ~age + gender + municipal_size + education + support_oppose+ tr_factcheck + political_interest, data= pldata)
+summary(fact.check.false)
+
+fact.check.mainstream <- lm(mainstream ~age + gender + municipal_size + education + support_oppose+ tr_factcheck + political_interest, data= pldata)
+summary(fact.check.mainstream)
+
+fact.check.hyperpartisan <- lm(hyperpartisan ~age + gender + municipal_size + education + support_oppose++ tr_factcheck + political_interest, data= pldata)
+summary(fact.check.hyperpartisan)
+
+###Fact Checking false, mainstream and hyperpartisan news detection compared to 2 Treatments
+
+fact.check.false2 <- lm(false ~age + gender + municipal_size + education + support_oppose+ tr_factcheck.coded + political_interest, data= pldata)
+summary(fact.check.false2)
+
+fact.check.mainstream2 <- lm(mainstream ~age + gender + municipal_size + education + support_oppose+ tr_factcheck.coded + political_interest, data= pldata)
+summary(fact.check.mainstream2)
+
+fact.check.hyperpartisan2 <- lm(hyperpartisan ~age + gender + municipal_size + education + support_oppose+ tr_factcheck.coded + political_interest, data= pldata)
+summary(fact.check.hyperpartisan2)
+
+
+###News Coverage on  false, mainstream and hyperpartisan news detection compared to CONTROL 
+
+news.coverage.false <- lm(false ~age + gender + municipal_size + education + support_oppose+ tr_coverage + political_interest, data= pldata)
+summary(news.coverage.false)
+
+news.coverage.mainstream <- lm(mainstream ~age + gender + municipal_size + education + support_oppose+ tr_coverage + political_interest, data= pldata)
+summary(news.coverage.mainstream)
+
+news.coverage.hyperpartisan <- lm(hyperpartisan ~age + gender + municipal_size + education + support_oppose+ tr_coverage + political_interest, data= pldata)
+summary(news.coverage.hyperpartisan)
+
+
+###News Coverage on  false, mainstream and hyperpartisan news detection compared to 2 Treatments 
+
+news.coverage.false2 <- lm(false ~age + gender + municipal_size + education + support_oppose+tr_coverage.recoded + political_interest, data= pldata)
+summary(news.coverage.false2)
+
+news.coverage.mainstream2 <- lm(mainstream ~age + gender + municipal_size + education + support_oppose+tr_coverage.recoded + political_interest, data= pldata)
+summary(news.coverage.mainstream2)
+
+news.coverage.hyperpartisan2 <- lm(hyperpartisan ~age + gender + municipal_size + education + support_oppose+ tr_coverage.recoded + political_interest, data= pldata)
+summary(news.coverage.hyperpartisan2)
+
+
+```
+
+```{r}
+install.packages("jtools")
+library(jtools)
+
+###Hypothesis 1 A:  Misperception 2 Treatment compared to controls 
+pldata$tr_all <- as.factor(pldata$tr_all)
+
+mispercption.all <- lm(misp ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata )
+summary(mispercption.all)
+stargazer(mispercption.all, type = "latex", title = "Misperceptions by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "party ID", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+###Hypothesis 1 B: Skpetism 2 Treatments compared to Control
+
+skept.all<- lm(skept ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata )
+summary(skept.all)
+stargazer(skept.all, type = "latex", title = "Skepticism by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "party ID", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+###Hypothesis 1C: Trust 2 Treatments Compared to Control 
+
+trust.all <-lm(trust ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata)
+summary(trust.all)
+
+pl.plot1 <- plot_coefs(mispercption.all,skept.all,trust.all, coefs = c("Accountability Fact Checking" = "tr_all3","Correctability Fact Checking" = "tr_all4", "Fake News Media Literacy" = "tr_all6", "Bias News Media Literacy" = "tr_all5","Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2"), model.names = c("Misperceptions", "Skpeticism", "Trust"), legend.title = "Outcome") + ggtitle("Poland Respondents") 
+
+pl.plot1
+
+###Hypo1 Misp passed MC 
+ 
+manipulation.checked.pl$tr_all <- as.factor( manipulation.checked.pl$tr_all)
+
+
+
+misp.all.mc <- lm(misp ~ age +gender + municipal_size + education + support_oppose + tr_all   + political_interest, data = manipulation.checked.pl)
+summary(misp.all.mc)
+
+###Hypo1 Skept
+skept.all.mc <- lm(skept ~ age + gender + municipal_size + education +  support_oppose + tr_all + political_interest, data =  manipulation.checked.pl )
+summary(rerun.h1b2)
+
+###Hypo1 Trust
+
+trust.all.mc <-lm(trust ~  age +gender + municipal_size + education +  support_oppose + tr_all + political_interest, data =  manipulation.checked.pl)
+summary(trust.all.mc)
+
+mani.check.models.pl  <- list(misp.all.mc,skept.all.mc,trust.all.mc)
+
+stargazer(mani.check.models.pl, type = "latex", title = "Trust by Treatment Condition", dep.var.labels= c("Misperception", "Skepticism", "Trust" ), covariate.labels = c("age", "gender", "race", "education", "birth place", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+
+
+
+pl.plot1.mc <- plot_coefs(misp.all.mc,skept.all.mc,trust.all.mc, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("Misperceptions", "Skpeticism", "Trust"), legend.title = "Outcome") + ggtitle("Respondents who passed the Manipulation Check in Poland") 
+pl.plot1.mc
+
+
+
+###Hypothesis 2A: False 2 Treatment compared to Control
+pldata$tr_all <- as.factor(pldata$tr_all)
+false.all <-lm(false ~ age +gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata)
+summary(false.all)
+stargazer(false.all, type = "latex", title = "False Headlines Identification by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+
+###Hypothesis 2B: Mainstream 2 treatment compared to Control 
+
+mainstream.all <-lm(mainstream ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata)
+summary(mainstream.all)
+stargazer(mainstream.all, type = "latex", title = "Mainstream Headline Bias Effects by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+###Hypothesis 2C: Biased News 2 Treatment compared to Control 
+hyperpartisan.all <-lm(hyperpartisan ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = pldata)
+summary(hyperpartisan.all)
+stargazer(mainstream.all, type = "latex", title = "Hyperpartisan Headline Bias Effects by Treatment Condition", covariate.labels = c("age", "gender", "race", "education", "support oppose", "Contextualized Media Coverage", "De-Contextualized Media Coverage", "Accountability Fact Checking","Correctability Fact Checking", "Bias News Media Literacy", "Fake News Media Literacy", "political interest"))
+
+pl.plot2 <- plot_coefs(false.all,mainstream.all,hyperpartisan.all, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("False", "Mainsteam", "Hyperpartisan"), legend.title = "Outcome", colors = "Qual1") + ggtitle("All Respondents")
+pl.plot2
+
+
+###Hypo 2A
+manipulation.checked.pl$tr_all <- as.factor(manipulation.checked.pl$tr_all)
+false.all.mc <-lm(false ~ age +gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = manipulation.checked.pl)
+summary(false.all.mc)
+
+
+###Hypothesis 2B: Mainstream 2 treatment compared to Control 
+
+mainstream.all.mc <-lm(mainstream ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = manipulation.checked.pl)
+summary(mainstream.all)
+
+###Hypothesis 2C: Biased News 2 Treatment compared to Control 
+hyperpartisan.all <-lm(hyperpartisan ~ age + gender + municipal_size + education +support_oppose +   tr_all + political_interest, data = manipulation.checked.pl)
+summary(hyperpartisan.all)
+
+pl.plot2.mc <- plot_coefs(false.all.mc,mainstream.all.mc,hyperpartisan.all, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("False", "Mainsteam", "Hyperpartisan"), legend.title = "Outcome", colors = "Qual1") + ggtitle("Respondents who passed the Manipulation Check") 
+pl.plot2.mc
+
+
+pl.plot3 <- plot_coefs(intent.fact,intent.fake,intent.medialit, intent.news, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("Fact Checking Websites", "Fake News Website", "Media Literacy Website", "News Website"), legend.title = "Outcome", colors = "Qual2") + ggtitle("All Respondents") 
+pl.plot3
+
+###MC for Intent to Read 
+manipulation.checked.pl$tr_all <- as.factor(manipulation.checked.pl$tr_all)
+
+intent.medialit.mc <- lm(visit_medialit ~ age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= manipulation.checked.pl)
+summary(intent.medialit.mc)
+
+intent.news.mc <- lm(visit_news ~  age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= manipulation.checked.pl)
+summary(intent.news.mc)
+
+intent.fake.mc <- lm(visit_fake ~ age + gender + municipal_size + education + support_oppose +  tr_all + political_interest, data= manipulation.checked.pl)
+summary(intent.fake.mc)
+
+intent.fact.mc <- lm(visit_fact ~ age + gender + municipal_size + education + support_oppose +  tr_all + political_interest, data= manipulation.checked.pl)
+summary(intent.fact.mc)
+
+pl.plot3.mc <- plot_coefs(intent.fact.mc,intent.fake.mc,intent.medialit.mc, intent.news.mc, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("Fact Checking Websites", "Fake News Website", "Media Literacy Website", "News Website"), legend.title = "Outcome", colors = "Qual2") + ggtitle("Respondents who passed the Manipulation Check")
+pl.plot3.mc
+
+
+pl.plot4 <- plot_coefs(trust.Fact.checkers,trust.journalist,trust.scientists,trust.socialmedia, trust.traditionalmedia,trust.uni.profs, trust.usgov, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("Fact Checkers", "Journalists", "Scientists", "Social Media", "Traditional Media","University Professors", "P.L. Government"), legend.title = "Outcome", colors = "Qual3") + ggtitle("All Respondents") 
+pl.plot4
+
+
+
+trust.journalist.mc <- lm(Journalists ~age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.journalist)
+
+trust.Fact.checkers.mc <- lm(Fact.checkers ~age + gender + municipal_size + education + support_oppose ++ tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.Fact.checkers.mc)
+
+trust.usgov.mc <-  lm(P.L.Government ~age + gender + municipal_size + education + support_oppose +tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.usgov.mc)
+
+
+trust.uni.profs.mc <-  lm(University.Professors ~age + gender + municipal_size + education + support_oppose + tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.uni.profs.mc)
+
+trust.socialmedia.mc <-  lm(Social.media ~age + gender + municipal_size + education + support_oppose+ tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.socialmedia.mc)
+
+trust.traditionalmedia.mc <-lm(Traditional.media ~age + gender + municipal_size + education + support_oppose+   tr_all+ political_interest, data= manipulation.checked.pl)
+summary(trust.traditionalmedia.mc)
+
+trust.scientists.mc <- lm(Scientists ~age + gender + municipal_size + education + support_oppose+ tr_all + political_interest, data= manipulation.checked.pl)
+summary(trust.scientists.mc)
+
+pl.plot4.mc <- plot_coefs(trust.Fact.checkers.mc,trust.journalist.mc,trust.scientists.mc,trust.socialmedia.mc, trust.traditionalmedia.mc,trust.uni.profs.mc, trust.usgov.mc, coefs = c("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6"), model.names = c("Fact Checkers", "Journalists", "Scientists", "Social Media", "Traditional Media","University Professors", "P.L Government"), legend.title = "Outcome", colors = "Qual3") + ggtitle("Respondents who passed the Manipulation Check") 
+pl.plot4.mc
+
+library(ggpubr)
+ggarrange(us.plot1, pl.plot1, ncol  =2)
+
+("Contextualized Media Coverage" = "tr_all1", "De-Contextualized Media Coverage" = "tr_all2", "Accountability Fact Checking" = "tr_all3", "Correctability Fact Checking" = "tr_all4", "Bias News Media Literacy" = "tr_all5", "Fake News Media Literacy" = "tr_all6")
+
+
+
+df_means_pl <- pldata %>% 
+  group_by(tr_all) %>% 
+  summarize(mean_misp = mean(misp, na.rm = TRUE),
+            mean_skept = mean(skept, na.rm = TRUE))
+
+
+df_means_pl <- na.omit(df_means_pl)
+
+tr_all_labels <- c("Control", 
+                   "Contextualized\nMedia Coverage", 
+                   "De-Contextualized\nMedia Coverage", 
+                   "Accountability\nFact Checking", 
+                   "Correctability\nFact Checking", 
+                   "Bias News\nMedia Literacy", 
+                   "Fake News\nMedia Literacy")
+par(mfrow=c(2,1),mar=c(4, 4, 2, 2))
+#Skept
+barplot(df_means_pl$mean_skept, names.arg = tr_all_labels, 
+        xlab = "Treatment Group", ylab = "Mean Score", 
+        main = "Mean of Skepticism Scores by Treatment Group",
+        col = "gray")
+#Misper
+barplot(df_means_pl$mean_misp, names.arg = tr_all_labels, 
+        xlab = "Treatment Group", ylab = "Mean Score", 
+        main = "Mean of Misperception Scores by Treatment Group",
+        col = "gray")
+
+library(psych)
+
+race.table <- pldata %>% group_by(race) %>% summarise(Percentage=n()/nrow(.)*100)
+
+gender.table <- pldata %>% group_by(gender) %>% summarise(Percentage=n()/nrow(.)*100)
+
+pldata<- pldata %>% mutate(age= case_when( 
+  age == "1" ~ 21.5, 
+  age == "2" ~ 29.5, 
+  age == "3" ~ 39.5, 
+  age == "4" ~ 49.5, 
+  age == "5" ~ 59.5, 
+  age == "6" ~ 70,
+))
+
+
+mean(pldata$age, na.rm = T)
+
+
+mean(pldata$skept)
+sd(pldata$skept)
+
+mean(pldata$misp)
+sd(pldata$misp)
+
+
+mean(pldata$trust)
+sd(pldata$trust)
+
+
+```
+
+```{r}
+pl.mc.n<- pldata %>% filter(mani_check_pass == "1") %>% count(mani_check_pass)
+pl.mc.n
+
+
+
+
+ pl.boxplot.data <- pldata %>% group_by(tr_all) %>% summarise(mean_misp = mean(misp, na.rm = TRUE), mean_skept = mean(skept, na.rm =T), misp_sd = sd(misp), skept_sd = sd(skept))
+   
+
+   
+plot.means.skept.pl <-ggplot(data = subset(pl.boxplot.data, !is.na(tr_all)), aes(x = tr_all, y = mean_skept)) +
+geom_bar(stat="identity", fill = "lightblue")+
+xlab("Treatment Group") +
+ylab("Skepticism Score") +
+  ylim(0,3.5)+
+  geom_errorbar(aes(ymin=mean_skept-skept_sd, ymax=mean_skept+skept_sd), width=.2,
+                 position=position_dodge(.9))+
+ggtitle("Distribution of Skepticism Scores by Treatment Group in Poland") +
+scale_x_discrete(labels = c("Control", "Contextualized \n Media Coverage", "De-Contextualized \nMedia Coverage", "Accountability\n Fact Checking", "Correctability \nFact Checking", "Bias News\n Media Literacy", "Fake News \nMedia Literacy"))
+
+plot.means.misp.pl <-ggplot(data = subset(pl.boxplot.data, !is.na(tr_all)), aes(x = tr_all, y = mean_misp)) +
+geom_bar(stat="identity", fill = "lightgreen")+
+xlab("Treatment Group") +
+ylab("Misperception Score") +
+  ylim(0,3.5)+
+  geom_errorbar(aes(ymin=mean_misp-misp_sd, ymax=mean_misp+misp_sd), width=.2,
+                 position=position_dodge(.9))+
+ggtitle("Distribution of Misperception Scores by Treatment Group in Poland") +
+scale_x_discrete(labels = c("Control", "Contextualized \n Media Coverage", "De-Contextualized \nMedia Coverage", "Accountability\n Fact Checking", "Correctability \nFact Checking", "Bias News\n Media Literacy", "Fake News \nMedia Literacy"))
+
+combined.means.graphs.pl <-ggarrange(plot.means.misp.pl, plot.means.skept.pl, nrow = 2)
+```
